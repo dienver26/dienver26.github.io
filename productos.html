@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catálogo de Productos — Dienver</title>
+<meta name="description" content="Catálogo completo de insumos de limpieza y descartables para gastronomía. Pedí tu cotización online.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0D1B3E;
+    --navy-light: #1a2d5a;
+    --accent: #2E6BE6;
+    --accent-light: #e8f0fd;
+    --white: #ffffff;
+    --off-white: #f7f7f5;
+    --gray-100: #f0efed;
+    --gray-200: #e2e1de;
+    --gray-400: #9d9b96;
+    --gray-600: #5a5955;
+    --text: #1a1916;
+    --wa-green: #25D366;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --cart-width: 380px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'DM Sans', sans-serif; color: var(--text); background: var(--off-white); overflow-x: hidden; }
+  a { text-decoration: none; color: inherit; }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 200;
+    background: rgba(255,255,255,0.97);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--gray-200);
+    padding: 0 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 68px;
+  }
+  .nav-logo img { height: 36px; width: auto; }
+  .nav-links { display: flex; gap: 28px; }
+  .nav-links a { font-size: 14px; color: var(--gray-600); transition: color 0.2s; }
+  .nav-links a:hover { color: var(--navy); }
+  .nav-right { display: flex; align-items: center; gap: 14px; }
+  .cart-btn {
+    position: relative;
+    background: var(--navy); color: var(--white);
+    padding: 10px 20px; border-radius: 8px;
+    font-size: 13px; font-weight: 500;
+    border: none; cursor: pointer; font-family: inherit;
+    display: flex; align-items: center; gap: 8px;
+    transition: background 0.2s;
+  }
+  .cart-btn:hover { background: var(--navy-light); }
+  .cart-count {
+    background: var(--accent); color: white;
+    border-radius: 100px; font-size: 11px; font-weight: 600;
+    padding: 1px 7px; min-width: 20px; text-align: center;
+    display: none;
+  }
+  .cart-count.visible { display: inline-block; }
+
+  /* HERO BAR */
+  .page-hero {
+    background: var(--navy);
+    padding: 48px 80px 52px;
+    position: relative; overflow: hidden;
+  }
+  .page-hero::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(46,107,230,0.2) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .page-hero-label { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 10px; }
+  .page-hero h1 { font-family: 'DM Serif Display', serif; font-size: 38px; color: var(--white); margin-bottom: 10px; }
+  .page-hero p { font-size: 15px; color: rgba(255,255,255,0.5); max-width: 500px; line-height: 1.6; }
+  .page-hero-hint { margin-top: 20px; display: flex; align-items: center; gap: 10px; font-size: 13px; color: rgba(255,255,255,0.35); }
+  .page-hero-hint span { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.12); padding: 4px 12px; border-radius: 100px; }
+
+  /* LAYOUT */
+  .catalog-layout {
+    display: flex;
+    min-height: calc(100vh - 68px);
+  }
+
+  /* SIDEBAR FILTROS */
+  .sidebar {
+    width: 240px; flex-shrink: 0;
+    background: var(--white);
+    border-right: 1px solid var(--gray-200);
+    padding: 32px 24px;
+    position: sticky; top: 68px;
+    height: calc(100vh - 68px);
+    overflow-y: auto;
+  }
+  .sidebar h3 { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gray-400); margin-bottom: 14px; }
+  .filter-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+  .filter-item {
+    padding: 9px 14px; border-radius: 8px;
+    font-size: 14px; cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
+    transition: background 0.15s, color 0.15s;
+    color: var(--gray-600);
+  }
+  .filter-item:hover { background: var(--gray-100); color: var(--navy); }
+  .filter-item.active { background: var(--accent-light); color: var(--accent); font-weight: 500; }
+  .filter-count { font-size: 11px; background: var(--gray-200); color: var(--gray-600); border-radius: 100px; padding: 1px 7px; }
+  .filter-item.active .filter-count { background: rgba(46,107,230,0.15); color: var(--accent); }
+
+  /* MAIN CATÁLOGO */
+  .catalog-main { flex: 1; padding: 32px 36px; min-width: 0; }
+  .catalog-toolbar {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 24px;
+  }
+  .catalog-count { font-size: 14px; color: var(--gray-400); }
+  .catalog-count strong { color: var(--text); }
+  .search-input {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    padding: 10px 16px 10px 40px;
+    font-size: 14px; font-family: inherit;
+    width: 240px; outline: none;
+    transition: border-color 0.2s;
+    position: relative;
+  }
+  .search-input:focus { border-color: var(--accent); }
+  .search-wrap { position: relative; }
+  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--gray-400); pointer-events: none; }
+
+  /* GRILLA PRODUCTOS */
+  .prod-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+  }
+  .prod-card {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: transform 0.22s, box-shadow 0.22s, border-color 0.22s;
+    cursor: pointer;
+    position: relative;
+  }
+  .prod-card:hover { transform: translateY(-3px); box-shadow: 0 10px 32px rgba(13,27,62,0.09); border-color: var(--gray-400); }
+  .prod-card.in-cart { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(46,107,230,0.15); }
+  .prod-card-img {
+    height: 170px; overflow: hidden;
+    background: var(--gray-100);
+    position: relative;
+  }
+  .prod-card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.35s; }
+  .prod-card:hover .prod-card-img img { transform: scale(1.06); }
+  .prod-cat-badge {
+    position: absolute; top: 10px; left: 10px;
+    font-size: 10px; font-weight: 500;
+    padding: 3px 9px; border-radius: 100px;
+    backdrop-filter: blur(8px);
+  }
+  .badge-limpieza { background: rgba(46,107,230,0.12); color: #1a5cc7; border: 1px solid rgba(46,107,230,0.2); }
+  .badge-descartables { background: rgba(234,139,0,0.12); color: #9a5c00; border: 1px solid rgba(234,139,0,0.2); }
+  .badge-higiene { background: rgba(22,163,74,0.1); color: #166534; border: 1px solid rgba(22,163,74,0.2); }
+  .badge-utensilios { background: rgba(124,58,237,0.1); color: #5b21b6; border: 1px solid rgba(124,58,237,0.2); }
+  .badge-papeleria { background: rgba(236,72,153,0.1); color: #9d174d; border: 1px solid rgba(236,72,153,0.2); }
+  .in-cart-badge {
+    position: absolute; top: 10px; right: 10px;
+    background: var(--accent); color: white;
+    border-radius: 50%; width: 24px; height: 24px;
+    display: none; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700;
+  }
+  .prod-card.in-cart .in-cart-badge { display: flex; }
+  .prod-card-body { padding: 14px 16px 16px; }
+  .prod-card-name { font-size: 14px; font-weight: 500; color: var(--navy); margin-bottom: 6px; line-height: 1.35; }
+  .prod-card-desc { font-size: 12px; color: var(--gray-400); line-height: 1.5; margin-bottom: 14px; min-height: 36px; }
+  .prod-add-btn {
+    width: 100%; padding: 9px;
+    border-radius: 7px; border: none; cursor: pointer;
+    font-family: inherit; font-size: 13px; font-weight: 500;
+    transition: all 0.18s;
+    background: var(--accent-light); color: var(--accent);
+  }
+  .prod-add-btn:hover { background: var(--accent); color: white; }
+  .prod-card.in-cart .prod-add-btn { background: rgba(46,107,230,0.08); color: var(--accent); }
+  .prod-card.in-cart .prod-add-btn:hover { background: #fee2e2; color: #dc2626; }
+
+  /* CARRITO LATERAL */
+  .cart-overlay {
+    position: fixed; inset: 0; z-index: 300;
+    background: rgba(13,27,62,0.45);
+    backdrop-filter: blur(4px);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .cart-overlay.open { opacity: 1; pointer-events: auto; }
+  .cart-panel {
+    position: fixed; top: 0; right: -100%; z-index: 301;
+    width: var(--cart-width); max-width: 100vw;
+    height: 100vh;
+    background: var(--white);
+    box-shadow: -8px 0 40px rgba(0,0,0,0.15);
+    display: flex; flex-direction: column;
+    transition: right 0.3s cubic-bezier(0.4,0,0.2,1);
+  }
+  .cart-panel.open { right: 0; }
+  .cart-header {
+    padding: 24px 24px 20px;
+    border-bottom: 1px solid var(--gray-200);
+    display: flex; justify-content: space-between; align-items: center;
+    flex-shrink: 0;
+  }
+  .cart-header h2 { font-size: 18px; font-weight: 600; color: var(--navy); }
+  .cart-header p { font-size: 13px; color: var(--gray-400); margin-top: 2px; }
+  .cart-close {
+    width: 36px; height: 36px; border-radius: 8px;
+    background: var(--gray-100); border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--gray-600); font-size: 18px; transition: background 0.15s;
+  }
+  .cart-close:hover { background: var(--gray-200); }
+
+  /* STEPS */
+  .cart-steps {
+    display: flex; padding: 16px 24px;
+    gap: 0; border-bottom: 1px solid var(--gray-200);
+    flex-shrink: 0;
+  }
+  .step {
+    flex: 1; text-align: center;
+    font-size: 12px; font-weight: 500;
+    color: var(--gray-400);
+    padding: 6px 0;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .step.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .step.done { color: var(--navy); }
+
+  /* CART BODY */
+  .cart-body { flex: 1; overflow-y: auto; padding: 20px 24px; }
+
+  /* LISTA CARRITO */
+  .cart-empty {
+    text-align: center; padding: 60px 20px;
+    color: var(--gray-400);
+  }
+  .cart-empty-icon { font-size: 40px; margin-bottom: 14px; opacity: 0.4; }
+  .cart-empty p { font-size: 14px; line-height: 1.5; }
+  .cart-items { display: flex; flex-direction: column; gap: 12px; }
+  .cart-item {
+    display: flex; gap: 12px; align-items: flex-start;
+    background: var(--off-white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+  }
+  .cart-item-img {
+    width: 52px; height: 52px; flex-shrink: 0;
+    border-radius: 6px; overflow: hidden;
+    background: var(--gray-200);
+  }
+  .cart-item-img img { width: 100%; height: 100%; object-fit: cover; }
+  .cart-item-info { flex: 1; min-width: 0; }
+  .cart-item-name { font-size: 13px; font-weight: 500; color: var(--navy); margin-bottom: 3px; line-height: 1.3; }
+  .cart-item-cat { font-size: 11px; color: var(--gray-400); }
+  .cart-item-remove {
+    background: none; border: none; cursor: pointer;
+    color: var(--gray-400); font-size: 18px; padding: 2px;
+    transition: color 0.15s; line-height: 1; flex-shrink: 0;
+  }
+  .cart-item-remove:hover { color: #dc2626; }
+
+  /* FORM COTIZACIÓN */
+  .quote-form { display: flex; flex-direction: column; gap: 14px; }
+  .quote-summary {
+    background: var(--accent-light);
+    border: 1px solid rgba(46,107,230,0.2);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    margin-bottom: 4px;
+  }
+  .quote-summary h4 { font-size: 13px; font-weight: 600; color: var(--navy); margin-bottom: 8px; }
+  .quote-summary-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+  .quote-summary-list li { font-size: 12px; color: var(--gray-600); display: flex; align-items: center; gap: 6px; }
+  .quote-summary-list li::before { content: '·'; color: var(--accent); font-weight: 700; }
+  .form-field-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-field-group label { font-size: 12px; font-weight: 500; color: var(--gray-600); }
+  .form-field-group input, .form-field-group textarea {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-family: inherit; font-size: 14px; color: var(--text);
+    outline: none; transition: border-color 0.2s; width: 100%;
+  }
+  .form-field-group input:focus, .form-field-group textarea:focus { border-color: var(--accent); }
+  .form-field-group textarea { resize: vertical; min-height: 80px; }
+  .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  /* CART FOOTER */
+  .cart-footer {
+    padding: 16px 24px 24px;
+    border-top: 1px solid var(--gray-200);
+    flex-shrink: 0;
+  }
+  .cart-footer-info { font-size: 12px; color: var(--gray-400); margin-bottom: 14px; line-height: 1.5; text-align: center; }
+  .btn-next, .btn-submit, .btn-back {
+    width: 100%; padding: 13px;
+    border-radius: 8px; border: none;
+    font-family: inherit; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: all 0.18s;
+  }
+  .btn-next { background: var(--accent); color: white; }
+  .btn-next:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-next:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .btn-submit { background: var(--navy); color: white; margin-top: 10px; }
+  .btn-submit:hover { opacity: 0.9; }
+  .btn-back {
+    background: var(--gray-100); color: var(--gray-600);
+    margin-bottom: 10px;
+  }
+  .btn-back:hover { background: var(--gray-200); }
+
+  /* SUCCESS */
+  .cart-success { text-align: center; padding: 40px 20px; }
+  .success-icon { font-size: 48px; margin-bottom: 16px; }
+  .cart-success h3 { font-size: 20px; font-weight: 600; color: var(--navy); margin-bottom: 10px; }
+  .cart-success p { font-size: 14px; color: var(--gray-600); line-height: 1.6; margin-bottom: 24px; }
+  .btn-wa-success {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--wa-green); color: white;
+    padding: 12px 24px; border-radius: 8px;
+    font-size: 14px; font-weight: 600;
+    transition: opacity 0.2s;
+  }
+  .btn-wa-success:hover { opacity: 0.9; }
+
+  /* WA FLOAT */
+  .wa-float {
+    position: fixed; bottom: 28px; right: 28px; z-index: 999;
+    width: 56px; height: 56px;
+    background: var(--wa-green); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 20px rgba(37,211,102,0.4);
+    transition: transform 0.2s;
+  }
+  .wa-float:hover { transform: scale(1.08); }
+  .wa-float svg { width: 28px; height: 28px; fill: white; }
+
+  /* SIN STOCK */
+  .prod-card.sin-stock { opacity: 0.6; }
+  .prod-card.sin-stock .prod-add-btn { 
+    background: var(--gray-100); color: var(--gray-400); cursor: not-allowed;
+  }
+  .prod-card.sin-stock .prod-add-btn:hover {
+    background: var(--gray-100); color: var(--gray-400);
+  }
+
+  /* NO RESULTS */
+  .no-results { text-align: center; padding: 80px 20px; color: var(--gray-400); }
+  .no-results p { font-size: 15px; margin-top: 12px; }
+
+  /* FILTROS MÓVIL — pills horizontales deslizables */
+  .mobile-filters {
+    display: none;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 8px;
+    padding: 12px 16px;
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-200);
+  }
+  .mobile-filters::-webkit-scrollbar { display: none; }
+  .mobile-filter-pill {
+    flex-shrink: 0;
+    padding: 7px 16px;
+    border-radius: 100px;
+    border: 1px solid var(--gray-200);
+    background: var(--white);
+    font-size: 13px; font-family: inherit;
+    color: var(--gray-600); cursor: pointer;
+    white-space: nowrap; transition: all 0.15s;
+  }
+  .mobile-filter-pill.active {
+    background: var(--navy); color: var(--white);
+    border-color: var(--navy);
+  }
+
+  /* TABLET */
+  @media (max-width: 900px) {
+    nav { padding: 0 16px; }
+    .nav-links { display: none; }
+    .page-hero { padding: 28px 20px 32px; }
+    .page-hero h1 { font-size: 24px; margin-bottom: 8px; }
+    .page-hero p { font-size: 14px; }
+    .page-hero-hint { flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+    .page-hero-hint span { font-size: 11px; padding: 3px 10px; }
+    .sidebar { display: none; }
+    .mobile-filters { display: flex; }
+    .catalog-layout { display: block; }
+    .catalog-main { padding: 16px 12px; }
+    .catalog-toolbar { margin-bottom: 16px; gap: 10px; }
+    .search-input { width: 100%; }
+    .search-wrap { flex: 1; }
+    .prod-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .cart-panel { width: 100%; max-width: 100vw; }
+    .form-row-2 { grid-template-columns: 1fr; }
+    .wa-float { width: 48px; height: 48px; bottom: 20px; right: 16px; }
+    .wa-float svg { width: 24px; height: 24px; }
+  }
+
+  /* MÓVIL CHICO */
+  @media (max-width: 480px) {
+    .cart-btn { padding: 8px 14px; font-size: 12px; }
+    .prod-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .prod-card-img { height: 120px; }
+    .prod-card-body { padding: 10px 10px 12px; }
+    .prod-card-name { font-size: 12px; margin-bottom: 4px; }
+    .prod-card-desc { font-size: 11px; margin-bottom: 10px; min-height: unset;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .prod-add-btn { font-size: 11px; padding: 8px 6px; }
+    .prod-cat-badge { font-size: 9px; padding: 2px 7px; }
+    .catalog-toolbar { flex-direction: column; align-items: stretch; gap: 8px; }
+    .catalog-count { font-size: 13px; }
+    .page-hero { padding: 20px 16px 24px; }
+    .page-hero h1 { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">
+    <img src="logo.png" alt="Dienver">
+  </a>
+  <div class="nav-links">
+    <a href="index.html">Inicio</a>
+    <a href="index.html#nosotros">Nosotros</a>
+    <a href="index.html#contacto">Contacto</a>
+  </div>
+  <div class="nav-right">
+    <button class="cart-btn" onclick="openCart()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/></svg>
+      Mi cotización
+      <span class="cart-count" id="cartCount">0</span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="page-hero">
+  <div class="page-hero-label">Distribuidora Dienver</div>
+  <h1>Catálogo de productos</h1>
+  <p>Seleccioná los productos que necesitás y armá tu solicitud de cotización. Te respondemos en menos de 24 hs.</p>
+  <div class="page-hero-hint">
+    <span>✓ Agregá productos al carrito</span>
+    <span>✓ Completá tus datos</span>
+    <span>✓ Recibís cotización por email</span>
+  </div>
+</div>
+
+<!-- FILTROS MOBILE -->
+<div class="mobile-filters" id="mobileFilters">
+  <button class="mobile-filter-pill active" onclick="filterCat('todos');setMobilePill(this)">Todos</button>
+  <button class="mobile-filter-pill" onclick="filterCat('limpieza');setMobilePill(this)">Limpieza</button>
+  <button class="mobile-filter-pill" onclick="filterCat('descartables');setMobilePill(this)">Descartables</button>
+  <button class="mobile-filter-pill" onclick="filterCat('higiene');setMobilePill(this)">Higiene</button>
+  <button class="mobile-filter-pill" onclick="filterCat('utensilios');setMobilePill(this)">Utensilios</button>
+  <button class="mobile-filter-pill" onclick="filterCat('papeleria');setMobilePill(this)">Papelería</button>
+</div>
+
+<!-- LAYOUT -->
+<div class="catalog-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <h3>Categorías</h3>
+    <ul class="filter-list" id="filterList">
+      <li class="filter-item active" data-cat="todos" onclick="filterCat('todos')">
+        Todos los productos <span class="filter-count" id="count-todos">44</span>
+      </li>
+      <li class="filter-item" data-cat="limpieza" onclick="filterCat('limpieza')">
+        Limpieza profesional <span class="filter-count" id="count-limpieza">0</span>
+      </li>
+      <li class="filter-item" data-cat="descartables" onclick="filterCat('descartables')">
+        Descartables & packaging <span class="filter-count" id="count-descartables">0</span>
+      </li>
+      <li class="filter-item" data-cat="higiene" onclick="filterCat('higiene')">
+        Higiene & protección <span class="filter-count" id="count-higiene">0</span>
+      </li>
+      <li class="filter-item" data-cat="utensilios" onclick="filterCat('utensilios')">
+        Utensilios <span class="filter-count" id="count-utensilios">0</span>
+      </li>
+      <li class="filter-item" data-cat="papeleria" onclick="filterCat('papeleria')">
+        Papelería <span class="filter-count" id="count-papeleria">0</span>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="catalog-main">
+    <div class="catalog-toolbar">
+      <p class="catalog-count"><strong id="visibleCount">44</strong> productos</p>
+      <div class="search-wrap">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="search-input" type="text" placeholder="Buscar producto..." id="searchInput" oninput="searchProducts()">
+      </div>
+    </div>
+    <div class="prod-grid" id="prodGrid"></div>
+    <div class="no-results" id="noResults" style="display:none;">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto; color:var(--gray-400)"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <p>No encontramos productos con ese nombre.</p>
+    </div>
+  </main>
+
+</div>
+
+<!-- CARRITO OVERLAY -->
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+
+<!-- CARRITO PANEL -->
+<div class="cart-panel" id="cartPanel">
+  <div class="cart-header">
+    <div>
+      <h2>Tu cotización</h2>
+      <p id="cartHeaderSub">Seleccioná los productos que necesitás</p>
+    </div>
+    <button class="cart-close" onclick="closeCart()">✕</button>
+  </div>
+  <div class="cart-steps">
+    <div class="step active" id="step1">1. Productos</div>
+    <div class="step" id="step2">2. Tus datos</div>
+    <div class="step" id="step3">3. Confirmación</div>
+  </div>
+  <div class="cart-body" id="cartBody">
+    <!-- contenido dinámico -->
+  </div>
+  <div class="cart-footer" id="cartFooter"></div>
+</div>
+
+<!-- WHATSAPP FLOTANTE -->
+<a href="https://wa.me/541156203565?text=Hola%20Dienver%2C%20quisiera%20solicitar%20una%20cotizaci%C3%B3n" target="_blank" class="wa-float" title="WhatsApp">
+  <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+
+<script>
+// ============================================================
+// BACKEND
+// ============================================================
+const BACKEND = 'https://script.google.com/macros/s/AKfycbxiTcaMRnMFVqY6_oCXpM7cHABhYBqzOgnlvWF_oDR96nMwNIPY_-WIj7uup7m1kcM/exec';
+
+let productos = [];
+
+async function cargarCatalogo() {
+  try {
+    const res  = await fetch(`${BACKEND}?action=catalogo`);
+    const data = await res.json();
+    if (data.ok) {
+      // Mapear campos del backend al formato que usa el HTML
+      productos = data.productos.map(p => ({
+        id:     p.id,
+        nombre: p.nombre,
+        cat:    p.categoria.toLowerCase(),
+        desc:   '',
+        img:    p.foto,
+        precio: p.precio,
+        hayStock: p.hayStock,
+      }));
+      updateCounts();
+      renderGrid(productos);
+      renderCartBody();
+    }
+  } catch (e) {
+    console.error('Error cargando catálogo:', e);
+  }
+}
+
+// ============================================================
+// ESTADO
+// ============================================================
+let cart = [];
+let currentCat = 'todos';
+let cartStep = 1;
+
+// ============================================================
+// RENDER GRILLA
+// ============================================================
+function renderGrid(list) {
+  const grid = document.getElementById('prodGrid');
+  const noRes = document.getElementById('noResults');
+  document.getElementById('visibleCount').textContent = list.length;
+
+  if (list.length === 0) {
+    grid.innerHTML = '';
+    noRes.style.display = 'block';
+    return;
+  }
+  noRes.style.display = 'none';
+
+  grid.innerHTML = list.map(p => {
+    const inCart = cart.find(c => c.id === p.id);
+    const badgeClass = 'badge-' + p.cat;
+    const catLabel = { limpieza:'Limpieza', descartables:'Descartables', higiene:'Higiene', utensilios:'Utensilios', papeleria:'Papelería' }[p.cat];
+    const btnText = inCart ? 'Quitar del pedido' : 'Agregar al pedido';
+    return `
+    <div class="prod-card ${inCart ? 'in-cart' : ''}" id="card-${p.id}">
+      <div class="prod-card-img">
+        <img src="${p.img}" alt="${p.nombre}" loading="lazy">
+        <span class="prod-cat-badge ${badgeClass}">${catLabel}</span>
+        <span class="in-cart-badge">✓</span>
+
+      </div>
+      <div class="prod-card-body">
+        <div class="prod-card-name">${p.nombre}</div>
+        <div class="prod-card-desc">${p.desc}</div>
+        <button class="prod-add-btn" onclick="toggleCart(${p.id})">${btnText}</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function getFilteredList() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  return productos.filter(p => {
+    const catMatch = currentCat === 'todos' || p.cat === currentCat.toLowerCase();
+    const searchMatch = !q || p.nombre.toLowerCase().includes(q);
+    return catMatch && searchMatch;
+  });
+}
+
+function filterCat(cat) {
+  currentCat = cat;
+  document.querySelectorAll('.filter-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.cat === cat);
+  });
+  renderGrid(getFilteredList());
+}
+
+function setMobilePill(el) {
+  document.querySelectorAll('.mobile-filter-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function searchProducts() {
+  renderGrid(getFilteredList());
+}
+
+function updateCounts() {
+  const cats = ['limpieza','descartables','higiene','utensilios','papeleria'];
+  document.getElementById('count-todos').textContent = productos.length;
+  cats.forEach(c => {
+    const el = document.getElementById('count-' + c);
+    if (el) el.textContent = productos.filter(p => p.cat === c).length;
+  });
+  // Actualizar count visible
+  const visEl = document.getElementById('visibleCount');
+  if (visEl) visEl.textContent = productos.length;
+}
+
+// ============================================================
+// CARRITO
+// ============================================================
+function toggleCart(id) {
+  const prod = productos.find(p => p.id === id);
+  const idx = cart.findIndex(c => c.id === id);
+  if (idx >= 0) {
+    cart.splice(idx, 1);
+  } else {
+    cart.push(prod);
+    openCart();
+  }
+  updateCartUI();
+  // re-render card
+  const card = document.getElementById('card-' + id);
+  if (card) {
+    const inCart = cart.find(c => c.id === id);
+    card.classList.toggle('in-cart', !!inCart);
+    card.querySelector('.prod-add-btn').textContent = inCart ? 'Quitar del pedido' : 'Agregar al pedido';
+  }
+}
+
+function updateCartUI() {
+  const count = cart.length;
+  const countEl = document.getElementById('cartCount');
+  countEl.textContent = count;
+  countEl.classList.toggle('visible', count > 0);
+  document.getElementById('cartHeaderSub').textContent =
+    count === 0 ? 'Seleccioná los productos que necesitás'
+    : count === 1 ? '1 producto seleccionado'
+    : `${count} productos seleccionados`;
+  renderCartBody();
+}
+
+function renderCartBody() {
+  const body = document.getElementById('cartBody');
+  const footer = document.getElementById('cartFooter');
+
+  // STEP 1 — lista
+  if (cartStep === 1) {
+    document.getElementById('step1').className = 'step active';
+    document.getElementById('step2').className = 'step';
+    document.getElementById('step3').className = 'step';
+
+    if (cart.length === 0) {
+      body.innerHTML = `
+        <div class="cart-empty">
+          <div class="cart-empty-icon">🛒</div>
+          <p>Tu cotización está vacía.<br>Agregá productos desde el catálogo.</p>
+        </div>`;
+      footer.innerHTML = `<p class="cart-footer-info">Los precios se envían por email o WhatsApp según tu consulta.</p>`;
+      return;
+    }
+
+    body.innerHTML = `<div class="cart-items">` +
+      cart.map(p => `
+        <div class="cart-item">
+          <div class="cart-item-img"><img src="${p.img}" alt="${p.nombre}" loading="lazy"></div>
+          <div class="cart-item-info">
+            <div class="cart-item-name">${p.nombre}</div>
+            <div class="cart-item-cat">${{ limpieza:'Limpieza', descartables:'Descartables', higiene:'Higiene', utensilios:'Utensilios', papeleria:'Papelería' }[p.cat]}</div>
+          </div>
+          <button class="cart-item-remove" onclick="toggleCart(${p.id})" title="Quitar">✕</button>
+        </div>`).join('') +
+      `</div>`;
+
+    footer.innerHTML = `
+      <p class="cart-footer-info">Revisá tu selección y avanzá para completar tus datos.</p>
+      <button class="btn-next" onclick="goStep(2)">Continuar → Completar datos</button>`;
+  }
+
+  // STEP 2 — form
+  if (cartStep === 2) {
+    document.getElementById('step1').className = 'step done';
+    document.getElementById('step2').className = 'step active';
+    document.getElementById('step3').className = 'step';
+
+    const summary = cart.map(p => `<li>${p.nombre}</li>`).join('');
+    body.innerHTML = `
+      <div class="quote-form">
+        <div class="quote-summary">
+          <h4>Tu pedido (${cart.length} producto${cart.length > 1 ? 's' : ''})</h4>
+          <ul class="quote-summary-list">${summary}</ul>
+        </div>
+        <div class="form-row-2">
+          <div class="form-field-group">
+            <label>Nombre *</label>
+            <input type="text" id="fNombre" placeholder="Tu nombre" required>
+          </div>
+          <div class="form-field-group">
+            <label>Empresa / Local *</label>
+            <input type="text" id="fEmpresa" placeholder="Nombre del negocio" required>
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="form-field-group">
+            <label>Email *</label>
+            <input type="email" id="fEmail" placeholder="tu@email.com" required>
+          </div>
+          <div class="form-field-group">
+            <label>Teléfono</label>
+            <input type="tel" id="fTel" placeholder="+54 11 XXXX-XXXX">
+          </div>
+        </div>
+        <div class="form-field-group">
+          <label>Comentarios adicionales</label>
+          <textarea id="fComentario" placeholder="Cantidades estimadas, frecuencia de compra, zona de entrega..."></textarea>
+        </div>
+      </div>`;
+
+    footer.innerHTML = `
+      <button class="btn-back" onclick="goStep(1)">← Volver a productos</button>
+      <button class="btn-next" onclick="submitQuote()">Enviar solicitud de cotización</button>`;
+  }
+
+  // STEP 3 — success
+  if (cartStep === 3) {
+    document.getElementById('step1').className = 'step done';
+    document.getElementById('step2').className = 'step done';
+    document.getElementById('step3').className = 'step active';
+
+    body.innerHTML = `
+      <div class="cart-success">
+        <div class="success-icon">🎉</div>
+        <h3>¡Solicitud enviada!</h3>
+        <p>Recibimos tu pedido de cotización. Te contactamos a la brevedad con precios y disponibilidad.</p>
+        <p style="margin-top:12px; font-size:13px; color:var(--gray-400);">¿Necesitás respuesta inmediata? Escribinos por WhatsApp.</p>
+        <a href="https://wa.me/541156203565?text=Hola%20Dienver%2C%20ya%20envié%20mi%20solicitud%20de%20cotización%20por%20la%20web" target="_blank" class="btn-wa-success" style="margin:24px auto 0; display:inline-flex;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Abrir WhatsApp
+        </a>
+      </div>`;
+    footer.innerHTML = `
+      <button class="btn-next" onclick="resetCart()">Hacer otra consulta</button>`;
+  }
+}
+
+function goStep(n) {
+  cartStep = n;
+  renderCartBody();
+}
+
+async function submitQuote() {
+  const nombre = document.getElementById('fNombre')?.value.trim();
+  const empresa = document.getElementById('fEmpresa')?.value.trim();
+  const email = document.getElementById('fEmail')?.value.trim();
+  const tel = document.getElementById('fTel')?.value.trim();
+  const comentario = document.getElementById('fComentario')?.value.trim();
+
+  if (!nombre || !empresa || !email) {
+    alert('Por favor completá nombre, empresa y email.');
+    return;
+  }
+
+  const productosList = cart.map(p => `• ${p.nombre}`).join('\n');
+
+  const btn = document.querySelector('.btn-next');
+  btn.textContent = 'Enviando...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(BACKEND, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        action: 'cotizacion',
+        nombre,
+        empresa,
+        email,
+        telefono: tel || 'No indicado',
+        productos: cart.map(p => ({ nombre: p.nombre })),
+        comentarios: comentario || 'Sin comentarios',
+      })
+    });
+
+    const data = await res.json();
+    if (data.ok) {
+      cartStep = 3;
+      cart = [];
+      updateCartUI();
+      document.getElementById('cartCount').classList.remove('visible');
+      document.querySelectorAll('.prod-card').forEach(c => {
+        c.classList.remove('in-cart');
+        c.querySelector('.prod-add-btn').textContent = 'Agregar al pedido';
+      });
+    } else {
+      throw new Error('Error al enviar');
+    }
+  } catch {
+    alert('Hubo un error al enviar. Por favor escribinos directamente por WhatsApp.');
+    btn.textContent = 'Enviar solicitud de cotización';
+    btn.disabled = false;
+  }
+}
+
+function resetCart() {
+  cart = [];
+  cartStep = 1;
+  updateCartUI();
+  closeCart();
+}
+
+// ============================================================
+// ABRIR / CERRAR CARRITO
+// ============================================================
+function openCart() {
+  document.getElementById('cartPanel').classList.add('open');
+  document.getElementById('cartOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  renderCartBody();
+}
+
+function closeCart() {
+  document.getElementById('cartPanel').classList.remove('open');
+  document.getElementById('cartOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ============================================================
+// INIT
+// ============================================================
+cargarCatalogo();
+</script>
+</body>
+</html>
