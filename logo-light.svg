@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="40" viewBox="0 0 160 40">
+  <g transform="translate(0, 0)">
+    <path d="M0,0 L34,0 L34,34 L24,34 L0,34 L0,0 Z" fill="#ffffff"/>
+    <path d="M34,34 L24,34 L34,24 Z" fill="#0D1B3E"/>
+    <path d="M8,8 L26,8 L26,26 L18,26 L8,26 L8,8 Z" fill="#0D1B3E"/>
+    <path d="M26,26 L18,26 L26,18 Z" fill="#ffffff"/>
+  </g>
+  <text x="44" y="25" font-family="system-ui,-apple-system,sans-serif" font-size="22" font-weight="600" fill="#ffffff" letter-spacing="-0.3">Dienver</text>
+</svg>

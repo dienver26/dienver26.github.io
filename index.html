@@ -56,7 +56,7 @@
   /* HERO */
   .hero {
     background: var(--navy);
-    min-height: 92vh;
+    min-height: 80vh;
     display: grid; grid-template-columns: 1fr 1fr;
     align-items: center;
     position: relative; overflow: hidden;
@@ -120,9 +120,8 @@
     background: linear-gradient(90deg, var(--navy) 0%, transparent 40%);
   }
   .hero-stats {
-    position: absolute; bottom: 40px; left: 0;
     display: flex; gap: 0;
-    z-index: 2;
+    margin-top: 48px;
   }
   .hero-stat {
     padding: 16px 28px;
@@ -301,8 +300,8 @@
     .hero { grid-template-columns: 1fr; min-height: auto; }
     .hero-content { padding: 60px 24px 40px; }
     .hero-image { display: none; }
-    .hero-stats { position: static; margin-top: 40px; }
-    section { padding: 64px 24px; }
+    .hero-stats { margin-top: 32px; }
+    section { padding: 56px 20px; }
     .categories-header { flex-direction: column; align-items: flex-start; gap: 16px; }
     .cat-grid { grid-template-columns: 1fr; }
     .diferentials-inner { grid-template-columns: 1fr; gap: 40px; }
@@ -319,7 +318,7 @@
 <!-- NAV -->
 <nav>
   <a href="index.html" class="nav-logo">
-    <img src="logo.png" alt="Dienver">
+    <img src="logo-dark.svg" alt="Dienver">
   </a>
   <div class="nav-links">
     <a href="productos.html">Productos</a>
@@ -348,7 +347,7 @@
     </div>
     <div class="hero-stats">
       <div class="hero-stat">
-        <div class="hero-stat-num">44+</div>
+        <div class="hero-stat-num">50+</div>
         <div class="hero-stat-label">Productos</div>
       </div>
       <div class="hero-stat">
@@ -541,6 +540,15 @@
             <p>insumosdienver@gmail.com</p>
           </div>
         </div>
+        <div class="contact-info-item">
+          <div class="contact-info-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <div class="contact-info-text">
+            <h4>Ubicación</h4>
+            <p>Agronomía, CABA</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -549,7 +557,7 @@
 <!-- FOOTER -->
 <footer>
   <div class="footer-logo">
-    <img src="logo.png" alt="Dienver">
+    <img src="logo-light.svg" alt="Dienver">
   </div>
   <div class="footer-links">
     <a href="productos.html">Catálogo</a>
@@ -558,7 +566,7 @@
     <a href="#contacto">Contacto</a>
     <a href="https://wa.me/541156203565" target="_blank">WhatsApp</a>
   </div>
-  <div class="footer-copy">© 2025 Distribuidora Dienver</div>
+  <div class="footer-copy">© 2026 Distribuidora Dienver</div>
 </footer>
 
 <!-- WHATSAPP FLOTANTE -->
