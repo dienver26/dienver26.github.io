@@ -485,7 +485,7 @@
     <h3>Categorías</h3>
     <ul class="filter-list" id="filterList">
       <li class="filter-item active" data-cat="todos" onclick="filterCat('todos')">
-        Todos los productos <span class="filter-count" id="count-todos">44</span>
+        Todos los productos <span class="filter-count" id="count-todos">...</span>
       </li>
       <li class="filter-item" data-cat="limpieza" onclick="filterCat('limpieza')">
         Limpieza profesional <span class="filter-count" id="count-limpieza">0</span>
@@ -508,7 +508,7 @@
   <!-- MAIN -->
   <main class="catalog-main">
     <div class="catalog-toolbar">
-      <p class="catalog-count"><strong id="visibleCount">44</strong> productos</p>
+      <p class="catalog-count"><strong id="visibleCount">...</strong> productos</p>
       <div class="search-wrap">
         <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         <input class="search-input" type="text" placeholder="Buscar producto..." id="searchInput" oninput="searchProducts()">
@@ -609,7 +609,7 @@ function renderGrid(list) {
     const inCart = cart.find(c => c.id === p.id);
     const badgeClass = 'badge-' + p.cat;
     const catLabel = { limpieza:'Limpieza', descartables:'Descartables', higiene:'Higiene', utensilios:'Utensilios', papeleria:'Papelería' }[p.cat];
-    const btnText = inCart ? 'Quitar del pedido' : 'Agregar al pedido';
+    const btnText = inCart ? 'Quitar del pedido' : 'Agregar a la cotización';
     return `
     <div class="prod-card ${inCart ? 'in-cart' : ''}" id="card-${p.id}">
       <div class="prod-card-img">
@@ -683,7 +683,7 @@ function toggleCart(id) {
   if (card) {
     const inCart = cart.find(c => c.id === id);
     card.classList.toggle('in-cart', !!inCart);
-    card.querySelector('.prod-add-btn').textContent = inCart ? 'Quitar del pedido' : 'Agregar al pedido';
+    card.querySelector('.prod-add-btn').textContent = inCart ? 'Quitar del pedido' : 'Agregar a la cotización';
   }
 }
 
@@ -848,7 +848,7 @@ async function submitQuote() {
       document.getElementById('cartCount').classList.remove('visible');
       document.querySelectorAll('.prod-card').forEach(c => {
         c.classList.remove('in-cart');
-        c.querySelector('.prod-add-btn').textContent = 'Agregar al pedido';
+        c.querySelector('.prod-add-btn').textContent = 'Agregar a la cotización';
       });
     } else {
       throw new Error('Error al enviar');
