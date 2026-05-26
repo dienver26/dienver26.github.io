@@ -733,6 +733,7 @@ function renderCartBody() {
 
     footer.innerHTML = `
       <p class="cart-footer-info">Revisá tu selección y avanzá para completar tus datos.</p>
+      <button class="btn-back" onclick="closeCart()" style="margin-bottom:8px;">← Seguir agregando productos</button>
       <button class="btn-next" onclick="goStep(2)">Continuar → Completar datos</button>`;
   }
 
@@ -776,7 +777,7 @@ function renderCartBody() {
       </div>`;
 
     footer.innerHTML = `
-      <button class="btn-back" onclick="goStep(1)">← Volver a productos</button>
+      <button class="btn-back" onclick="goStep(1)">← Seguir agregando productos</button>
       <button class="btn-next" onclick="submitQuote()">Enviar solicitud de cotización</button>`;
   }
 
