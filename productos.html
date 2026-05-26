@@ -829,7 +829,7 @@ async function submitQuote() {
   try {
     const res = await fetch(BACKEND, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({
         action: 'cotizacion',
         nombre,

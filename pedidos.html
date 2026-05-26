@@ -585,7 +585,7 @@ async function enviarPedido() {
   try {
     const res  = await fetch(BACKEND, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({ action: 'pedido', token: cliente.token, sucursal: sucursalSel, productos: items })
     });
     const data = await res.json();
