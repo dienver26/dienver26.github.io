@@ -511,22 +511,29 @@ function filtrar() {
   renderGrid(lista);
 }
 
-function cambiarQty(id, delta) {
-  setQty(id, Math.max(0, (cantidades[id] || 0) + delta));
+function cambiarQty(id, delta, maxStock) {
+  const actual = cantidades[id] || 0;
+  const nueva  = Math.max(0, actual + delta);
+  setQty(id, nueva, maxStock);
 }
 
-function setQty(id, valor) {
-  valor = Math.max(0, Math.floor(valor) || 0);
+function setQty(id, valor, maxStock) {
+  const p = productos.find(x => x.id === parseInt(id));
+  const max = maxStock !== undefined ? maxStock : (p ? p.stock : 999);
+  valor = Math.max(0, Math.min(max, Math.floor(valor) || 0));
   if (valor === 0) delete cantidades[id];
   else cantidades[id] = valor;
 
   const card = document.getElementById(`card-${id}`);
   if (card) {
+    const p = productos.find(x => x.id === parseInt(id));
+    const maxStock = p ? p.stock : 999;
     card.classList.toggle('con-cantidad', valor > 0);
     const input = document.getElementById(`qty-${id}`);
     if (input) input.value = valor;
-    const btnMinus = card.querySelector('.qty-btn');
-    if (btnMinus) btnMinus.disabled = valor === 0;
+    const btns = card.querySelectorAll('.qty-btn');
+    if (btns[0]) btns[0].disabled = valor === 0;
+    if (btns[1]) btns[1].disabled = valor >= maxStock;
   }
   actualizarBarra();
 }
