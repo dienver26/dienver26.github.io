@@ -110,6 +110,20 @@
   .filter-item.active { background: var(--accent-light); color: var(--accent); font-weight: 500; }
   .filter-count { font-size: 11px; background: var(--gray-200); color: var(--gray-600); border-radius: 100px; padding: 1px 7px; }
   .filter-item.active .filter-count { background: rgba(46,107,230,0.15); color: var(--accent); }
+  .filter-item[data-cat="ofertas"] { color: #dc2626; }
+  .filter-item[data-cat="ofertas"]:hover { background: #fee2e2; color: #dc2626; }
+  .filter-item[data-cat="ofertas"].active { background: #fee2e2; color: #dc2626; }
+  .filter-item[data-cat="ofertas"] .filter-count { background: rgba(220,38,38,0.12); color: #dc2626; }
+  .mobile-filter-pill.oferta-pill { border-color: #dc2626; color: #dc2626; }
+  .mobile-filter-pill.oferta-pill.active { background: #dc2626; color: white; border-color: #dc2626; }
+  .badge-oferta {
+    position: absolute; top: 10px; right: 10px;
+    background: #dc2626; color: white;
+    font-size: 10px; font-weight: 700;
+    padding: 3px 9px; border-radius: 100px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .prod-card.in-cart .badge-oferta { right: 38px; }
 
   /* MAIN CATÁLOGO */
   .catalog-main { flex: 1; padding: 32px 36px; min-width: 0; }
@@ -475,7 +489,7 @@
   <button class="mobile-filter-pill" onclick="filterCat('higiene');setMobilePill(this)">Higiene</button>
   <button class="mobile-filter-pill" onclick="filterCat('utensilios');setMobilePill(this)">Utensilios</button>
   <button class="mobile-filter-pill" onclick="filterCat('papeleria');setMobilePill(this)">Papelería</button>
-  <button class="mobile-filter-pill" onclick="filterCat('ofertas');setMobilePill(this)">🏷 Ofertas</button>
+  <button class="mobile-filter-pill oferta-pill" onclick="filterCat('ofertas');setMobilePill(this)">🏷 Ofertas</button>
 </div>
 
 <!-- LAYOUT -->
@@ -621,6 +635,7 @@ function renderGrid(list) {
         <img src="${p.img}" alt="${p.nombre}" loading="lazy">
         <span class="prod-cat-badge ${badgeClass}">${catLabel}</span>
         <span class="in-cart-badge">✓</span>
+        ${p.oferta ? '<span class="badge-oferta">Oferta</span>' : ''}
 
       </div>
       <div class="prod-card-body">

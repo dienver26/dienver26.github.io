@@ -133,6 +133,14 @@
     white-space: nowrap; transition: all 0.15s;
   }
   .cat-pill.active { background: var(--navy); color: white; border-color: var(--navy); }
+  .cat-pill.oferta-pill { border-color: #dc2626; color: #dc2626; }
+  .cat-pill.oferta-pill.active { background: #dc2626; color: white; border-color: #dc2626; }
+  .badge-oferta {
+    position: absolute; top: 6px; right: 6px;
+    background: #dc2626; color: white;
+    font-size: 9px; font-weight: 700; padding: 2px 7px;
+    border-radius: 100px; text-transform: uppercase; letter-spacing: 0.05em;
+  }
 
   /* GRILLA */
   .prod-grid-wrap { padding-bottom: 80px; }
@@ -447,7 +455,7 @@ function iniciarUI() {
   const cf = document.getElementById('catFilters');
   cats.forEach(c => {
     const btn = document.createElement('button');
-    btn.className = 'cat-pill' + (c === 'Todos' ? ' active' : '');
+    btn.className = 'cat-pill' + (c === 'Todos' ? ' active' : '') + (c === 'Ofertas' ? ' oferta-pill' : '');
     btn.textContent = c;
     btn.onclick = () => {
       catActiva = c;
@@ -491,6 +499,7 @@ function renderGrid(lista) {
         <img src="${p.foto}" alt="${p.nombre}" loading="lazy">
         <span class="prod-badge badge-${p.categoria}">${p.categoria}</span>
         ${!p.hayStock ? '<span class="sin-stock-badge">Sin stock</span>' : ''}
+        ${p.oferta ? '<span class="badge-oferta">Oferta</span>' : ''}
       </div>
       <div class="prod-body">
         <div class="prod-name">${p.nombre}</div>
