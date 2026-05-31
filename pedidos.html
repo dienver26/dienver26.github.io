@@ -443,7 +443,7 @@ function iniciarUI() {
   sucursalSel = cliente.sucursales[0];
 
   // Categorías
-  const cats = ['Todos', ...new Set(productos.map(p => p.categoria))];
+  const cats = ['Todos', 'Ofertas', ...new Set(productos.map(p => p.categoria))];
   const cf = document.getElementById('catFilters');
   cats.forEach(c => {
     const btn = document.createElement('button');
@@ -504,7 +504,8 @@ function renderGrid(lista) {
 function filtrar() {
   const q = document.getElementById('searchInput').value.toLowerCase().trim();
   const lista = productos.filter(p => {
-    const catOk  = catActiva === 'Todos' || p.categoria === catActiva;
+    const catOk  = catActiva === 'Todos' || 
+      (catActiva === 'Ofertas' ? p.oferta : p.categoria === catActiva);
     const nameOk = !q || p.nombre.toLowerCase().includes(q);
     return catOk && nameOk;
   });

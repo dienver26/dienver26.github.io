@@ -475,6 +475,7 @@
   <button class="mobile-filter-pill" onclick="filterCat('higiene');setMobilePill(this)">Higiene</button>
   <button class="mobile-filter-pill" onclick="filterCat('utensilios');setMobilePill(this)">Utensilios</button>
   <button class="mobile-filter-pill" onclick="filterCat('papeleria');setMobilePill(this)">Papelería</button>
+  <button class="mobile-filter-pill" onclick="filterCat('ofertas');setMobilePill(this)">🏷 Ofertas</button>
 </div>
 
 <!-- LAYOUT -->
@@ -501,6 +502,9 @@
       </li>
       <li class="filter-item" data-cat="papeleria" onclick="filterCat('papeleria')">
         Papelería <span class="filter-count" id="count-papeleria">0</span>
+      </li>
+      <li class="filter-item" data-cat="ofertas" onclick="filterCat('ofertas')">
+        🏷 Ofertas <span class="filter-count" id="count-ofertas">0</span>
       </li>
     </ul>
   </aside>
@@ -573,6 +577,7 @@ async function cargarCatalogo() {
         img:    p.foto,
         precio: p.precio,
         hayStock: p.hayStock,
+        oferta:   p.oferta,
       }));
       updateCounts();
       renderGrid(productos);
@@ -630,7 +635,8 @@ function renderGrid(list) {
 function getFilteredList() {
   const q = document.getElementById('searchInput').value.toLowerCase().trim();
   return productos.filter(p => {
-    const catMatch = currentCat === 'todos' || p.cat === currentCat.toLowerCase();
+    const catMatch = currentCat === 'todos' || 
+      (currentCat === 'ofertas' ? p.oferta : p.cat === currentCat.toLowerCase());
     const searchMatch = !q || p.nombre.toLowerCase().includes(q);
     return catMatch && searchMatch;
   });
@@ -660,6 +666,8 @@ function updateCounts() {
     const el = document.getElementById('count-' + c);
     if (el) el.textContent = productos.filter(p => p.cat === c).length;
   });
+  const ofEl = document.getElementById('count-ofertas');
+  if (ofEl) ofEl.textContent = productos.filter(p => p.oferta).length;
   // Actualizar count visible
   const visEl = document.getElementById('visibleCount');
   if (visEl) visEl.textContent = productos.length;
