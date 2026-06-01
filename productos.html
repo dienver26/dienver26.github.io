@@ -483,13 +483,6 @@
 
 <!-- FILTROS MOBILE -->
 <div class="mobile-filters" id="mobileFilters">
-  <button class="mobile-filter-pill active" onclick="filterCat('todos');setMobilePill(this)">Todos</button>
-  <button class="mobile-filter-pill" onclick="filterCat('limpieza');setMobilePill(this)">Limpieza</button>
-  <button class="mobile-filter-pill" onclick="filterCat('descartables');setMobilePill(this)">Descartables</button>
-  <button class="mobile-filter-pill" onclick="filterCat('higiene');setMobilePill(this)">Higiene</button>
-  <button class="mobile-filter-pill" onclick="filterCat('utensilios');setMobilePill(this)">Utensilios</button>
-  <button class="mobile-filter-pill" onclick="filterCat('papeleria');setMobilePill(this)">Papelería</button>
-  <button class="mobile-filter-pill oferta-pill" onclick="filterCat('ofertas');setMobilePill(this)">🏷 Ofertas</button>
 </div>
 
 <!-- LAYOUT -->
@@ -501,24 +494,6 @@
     <ul class="filter-list" id="filterList">
       <li class="filter-item active" data-cat="todos" onclick="filterCat('todos')">
         Todos los productos <span class="filter-count" id="count-todos">...</span>
-      </li>
-      <li class="filter-item" data-cat="limpieza" onclick="filterCat('limpieza')">
-        Limpieza profesional <span class="filter-count" id="count-limpieza">0</span>
-      </li>
-      <li class="filter-item" data-cat="descartables" onclick="filterCat('descartables')">
-        Descartables & packaging <span class="filter-count" id="count-descartables">0</span>
-      </li>
-      <li class="filter-item" data-cat="higiene" onclick="filterCat('higiene')">
-        Higiene & protección <span class="filter-count" id="count-higiene">0</span>
-      </li>
-      <li class="filter-item" data-cat="utensilios" onclick="filterCat('utensilios')">
-        Utensilios <span class="filter-count" id="count-utensilios">0</span>
-      </li>
-      <li class="filter-item" data-cat="papeleria" onclick="filterCat('papeleria')">
-        Papelería <span class="filter-count" id="count-papeleria">0</span>
-      </li>
-      <li class="filter-item" data-cat="ofertas" onclick="filterCat('ofertas')">
-        🏷 Ofertas <span class="filter-count" id="count-ofertas">0</span>
       </li>
     </ul>
   </aside>
@@ -610,6 +585,91 @@ let currentCat = 'todos';
 let cartStep = 1;
 
 // ============================================================
+// CATEGORÍAS DINÁMICAS
+// ============================================================
+
+// Paleta de colores para badges — asignada por hash del nombre
+const CAT_PALETA = [
+  { bg: 'rgba(46,107,230,0.12)',  color: '#1a5cc7', border: 'rgba(46,107,230,0.2)'  },
+  { bg: 'rgba(234,139,0,0.12)',   color: '#9a5c00', border: 'rgba(234,139,0,0.2)'   },
+  { bg: 'rgba(22,163,74,0.1)',    color: '#166534', border: 'rgba(22,163,74,0.2)'   },
+  { bg: 'rgba(124,58,237,0.1)',   color: '#5b21b6', border: 'rgba(124,58,237,0.2)'  },
+  { bg: 'rgba(236,72,153,0.1)',   color: '#9d174d', border: 'rgba(236,72,153,0.2)'  },
+  { bg: 'rgba(14,165,233,0.1)',   color: '#0369a1', border: 'rgba(14,165,233,0.2)'  },
+  { bg: 'rgba(239,68,68,0.1)',    color: '#991b1b', border: 'rgba(239,68,68,0.2)'   },
+  { bg: 'rgba(20,184,166,0.1)',   color: '#0f766e', border: 'rgba(20,184,166,0.2)'  },
+];
+
+function hashCat(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) & 0xffffffff;
+  return Math.abs(h) % CAT_PALETA.length;
+}
+
+function badgeStyleCat(cat) {
+  const p = CAT_PALETA[hashCat(cat)];
+  return `background:${p.bg};color:${p.color};border:1px solid ${p.border}`;
+}
+
+function construirFiltros() {
+  const cats = [...new Set(productos.map(p => p.cat))].sort();
+  const list = document.getElementById('filterList');
+  const mobile = document.getElementById('mobileFilters');
+
+  // Limpiar categorías dinámicas previas (mantener "Todos")
+  list.querySelectorAll('[data-cat]:not([data-cat="todos"])').forEach(el => el.remove());
+  mobile.innerHTML = '';
+
+  // Mobile: Todos
+  const pillTodos = document.createElement('button');
+  pillTodos.className = 'mobile-filter-pill' + (currentCat === 'todos' ? ' active' : '');
+  pillTodos.textContent = 'Todos';
+  pillTodos.onclick = () => { filterCat('todos'); setMobilePill(pillTodos); };
+  mobile.appendChild(pillTodos);
+
+  // Categorías dinámicas
+  cats.forEach(cat => {
+    const count = productos.filter(p => p.cat === cat).length;
+    const label = cat.charAt(0).toUpperCase() + cat.slice(1);
+
+    // Sidebar
+    const li = document.createElement('li');
+    li.className = 'filter-item' + (currentCat === cat ? ' active' : '');
+    li.dataset.cat = cat;
+    li.onclick = () => filterCat(cat);
+    li.innerHTML = `${label} <span class="filter-count" id="count-${cat}">${count}</span>`;
+    list.appendChild(li);
+
+    // Mobile pill
+    const pill = document.createElement('button');
+    pill.className = 'mobile-filter-pill' + (currentCat === cat ? ' active' : '');
+    pill.textContent = label;
+    pill.onclick = () => { filterCat(cat); setMobilePill(pill); };
+    mobile.appendChild(pill);
+  });
+
+  // Ofertas siempre al final
+  const ofertaCount = productos.filter(p => p.oferta).length;
+
+  const liOfertas = document.createElement('li');
+  liOfertas.className = 'filter-item' + (currentCat === 'ofertas' ? ' active' : '');
+  liOfertas.dataset.cat = 'ofertas';
+  liOfertas.style.color = '#dc2626';
+  liOfertas.onclick = () => filterCat('ofertas');
+  liOfertas.innerHTML = `🏷 Ofertas <span class="filter-count" id="count-ofertas">${ofertaCount}</span>`;
+  list.appendChild(liOfertas);
+
+  const pillOfertas = document.createElement('button');
+  pillOfertas.className = 'mobile-filter-pill oferta-pill' + (currentCat === 'ofertas' ? ' active' : '');
+  pillOfertas.textContent = '🏷 Ofertas';
+  pillOfertas.onclick = () => { filterCat('ofertas'); setMobilePill(pillOfertas); };
+  mobile.appendChild(pillOfertas);
+
+  // Count todos
+  document.getElementById('count-todos').textContent = productos.length;
+}
+
+// ============================================================
 // RENDER GRILLA
 // ============================================================
 function renderGrid(list) {
@@ -625,18 +685,17 @@ function renderGrid(list) {
   noRes.style.display = 'none';
 
   grid.innerHTML = list.map(p => {
-    const inCart = cart.find(c => c.id === p.id);
-    const badgeClass = 'badge-' + p.cat;
-    const catLabel = { limpieza:'Limpieza', descartables:'Descartables', higiene:'Higiene', utensilios:'Utensilios', papeleria:'Papelería' }[p.cat];
+    const inCart  = cart.find(c => c.id === p.id);
+    const label   = p.cat.charAt(0).toUpperCase() + p.cat.slice(1);
+    const bStyle  = badgeStyleCat(p.cat);
     const btnText = inCart ? 'Quitar del pedido' : 'Agregar a la cotización';
     return `
     <div class="prod-card ${inCart ? 'in-cart' : ''}" id="card-${p.id}">
       <div class="prod-card-img">
         <img src="${p.img}" alt="${p.nombre}" loading="lazy">
-        <span class="prod-cat-badge ${badgeClass}">${catLabel}</span>
+        <span class="prod-cat-badge" style="${bStyle}">${label}</span>
         <span class="in-cart-badge">✓</span>
         ${p.oferta ? '<span class="badge-oferta">Oferta</span>' : ''}
-
       </div>
       <div class="prod-card-body">
         <div class="prod-card-name">${p.nombre}</div>
@@ -650,7 +709,7 @@ function renderGrid(list) {
 function getFilteredList() {
   const q = document.getElementById('searchInput').value.toLowerCase().trim();
   return productos.filter(p => {
-    const catMatch = currentCat === 'todos' || 
+    const catMatch = currentCat === 'todos' ||
       (currentCat === 'ofertas' ? p.oferta : p.cat === currentCat.toLowerCase());
     const searchMatch = !q || p.nombre.toLowerCase().includes(q);
     return catMatch && searchMatch;
@@ -661,6 +720,7 @@ function filterCat(cat) {
   currentCat = cat;
   document.querySelectorAll('.filter-item').forEach(el => {
     el.classList.toggle('active', el.dataset.cat === cat);
+    if (el.dataset.cat === 'ofertas') el.style.color = cat === 'ofertas' ? '#dc2626' : '#dc2626';
   });
   renderGrid(getFilteredList());
 }
@@ -675,15 +735,7 @@ function searchProducts() {
 }
 
 function updateCounts() {
-  const cats = ['limpieza','descartables','higiene','utensilios','papeleria'];
-  document.getElementById('count-todos').textContent = productos.length;
-  cats.forEach(c => {
-    const el = document.getElementById('count-' + c);
-    if (el) el.textContent = productos.filter(p => p.cat === c).length;
-  });
-  const ofEl = document.getElementById('count-ofertas');
-  if (ofEl) ofEl.textContent = productos.filter(p => p.oferta).length;
-  // Actualizar count visible
+  construirFiltros();
   const visEl = document.getElementById('visibleCount');
   if (visEl) visEl.textContent = productos.length;
 }
