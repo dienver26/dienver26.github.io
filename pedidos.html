@@ -104,7 +104,31 @@
     background: var(--white);
     border-bottom: 1px solid var(--gray-200);
     position: sticky; top: 60px; z-index: 100;
+    flex-wrap: wrap;
   }
+  .toggle-wrap { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--gray-600); cursor: pointer; user-select: none; flex-shrink: 0; }
+  .toggle-wrap input { display: none; }
+  .toggle-track {
+    width: 32px; height: 18px; border-radius: 100px;
+    background: var(--gray-200); position: relative;
+    transition: background 0.2s; flex-shrink: 0;
+  }
+  .toggle-track::after {
+    content: ''; position: absolute; top: 2px; left: 2px;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: white; transition: transform 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .toggle-wrap input:checked + .toggle-track { background: var(--accent); }
+  .toggle-wrap input:checked + .toggle-track::after { transform: translateX(14px); }
+  .sort-btn {
+    display: flex; align-items: center; gap: 5px;
+    padding: 7px 12px; border-radius: 8px;
+    border: 1px solid var(--gray-200); background: var(--white);
+    font-family: inherit; font-size: 12px; color: var(--gray-600);
+    cursor: pointer; white-space: nowrap; flex-shrink: 0;
+  }
+  .sort-btn.active { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
   .search-wrap { position: relative; flex: 1; }
   .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--gray-400); pointer-events: none; }
   .search-input {
@@ -349,6 +373,15 @@
       <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       <input class="search-input" type="text" placeholder="Buscar producto..." id="searchInput" oninput="filtrar()">
     </div>
+    <label class="toggle-wrap">
+      <input type="checkbox" id="toggleStock" onchange="filtrar()">
+      <span class="toggle-track"></span>
+      En stock
+    </label>
+    <button class="sort-btn" id="sortBtn" onclick="toggleSort()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M7 12h10M11 18h2"/></svg>
+      <span id="sortLabel">A → Z</span>
+    </button>
   </div>
   <div class="cat-filters" id="catFilters"></div>
   <div class="prod-grid-wrap">
@@ -406,6 +439,15 @@ let productos  = [];
 let cantidades = {};
 let catActiva  = 'Todos';
 let sucursalSel = '';
+let sortAZ = true;
+let soloStock = false;
+
+function toggleSort() {
+  sortAZ = !sortAZ;
+  document.getElementById('sortLabel').textContent = sortAZ ? 'A → Z' : 'Z → A';
+  document.getElementById('sortBtn').classList.toggle('active', !sortAZ);
+  filtrar();
+}
 
 window.addEventListener('DOMContentLoaded', async () => {
   const token = new URLSearchParams(window.location.search).get('token');
@@ -512,12 +554,17 @@ function renderGrid(lista) {
 
 function filtrar() {
   const q = document.getElementById('searchInput').value.toLowerCase().trim();
-  const lista = productos.filter(p => {
-    const catOk  = catActiva === 'Todos' || 
+  soloStock = document.getElementById('toggleStock').checked;
+  let lista = productos.filter(p => {
+    const catOk  = catActiva === 'Todos' ||
       (catActiva === 'Ofertas' ? p.oferta : p.categoria === catActiva);
     const nameOk = !q || p.nombre.toLowerCase().includes(q);
-    return catOk && nameOk;
+    const stockOk = !soloStock || p.hayStock;
+    return catOk && nameOk && stockOk;
   });
+  lista.sort((a, b) => sortAZ
+    ? a.nombre.localeCompare(b.nombre, 'es')
+    : b.nombre.localeCompare(a.nombre, 'es'));
   renderGrid(lista);
 }
 

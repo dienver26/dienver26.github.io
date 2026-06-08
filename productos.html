@@ -129,8 +129,35 @@
   .catalog-main { flex: 1; padding: 32px 36px; min-width: 0; }
   .catalog-toolbar {
     display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 24px;
+    margin-bottom: 24px; gap: 12px; flex-wrap: wrap;
   }
+  .toolbar-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  /* Toggle stock */
+  .toggle-wrap { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--gray-600); cursor: pointer; user-select: none; }
+  .toggle-wrap input { display: none; }
+  .toggle-track {
+    width: 36px; height: 20px; border-radius: 100px;
+    background: var(--gray-200); position: relative;
+    transition: background 0.2s; flex-shrink: 0;
+  }
+  .toggle-track::after {
+    content: ''; position: absolute; top: 3px; left: 3px;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: white; transition: transform 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .toggle-wrap input:checked + .toggle-track { background: var(--accent); }
+  .toggle-wrap input:checked + .toggle-track::after { transform: translateX(16px); }
+  /* Botón orden */
+  .sort-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 14px; border-radius: 8px;
+    border: 1px solid var(--gray-200); background: var(--white);
+    font-family: inherit; font-size: 13px; color: var(--gray-600);
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
+  }
+  .sort-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .sort-btn.active { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
   .catalog-count { font-size: 14px; color: var(--gray-400); }
   .catalog-count strong { color: var(--text); }
   .search-input {
@@ -502,9 +529,15 @@
   <main class="catalog-main">
     <div class="catalog-toolbar">
       <p class="catalog-count"><strong id="visibleCount">...</strong> productos</p>
-      <div class="search-wrap">
-        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input class="search-input" type="text" placeholder="Buscar producto..." id="searchInput" oninput="searchProducts()">
+      <div class="toolbar-controls">
+        <button class="sort-btn" id="sortBtn" onclick="toggleSort()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M7 12h10M11 18h2"/></svg>
+          <span id="sortLabel">A → Z</span>
+        </button>
+        <div class="search-wrap">
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input class="search-input" type="text" placeholder="Buscar producto..." id="searchInput" oninput="searchProducts()">
+        </div>
       </div>
     </div>
     <div class="prod-grid" id="prodGrid"></div>
@@ -583,6 +616,18 @@ async function cargarCatalogo() {
 let cart = [];
 let currentCat = 'todos';
 let cartStep = 1;
+let sortAZ = true;
+let soloStock = false;
+
+// ============================================================
+// TOGGLE SORT
+// ============================================================
+function toggleSort() {
+  sortAZ = !sortAZ;
+  document.getElementById('sortLabel').textContent = sortAZ ? 'A → Z' : 'Z → A';
+  document.getElementById('sortBtn').classList.toggle('active', !sortAZ);
+  renderGrid(getFilteredList());
+}
 
 // ============================================================
 // CATEGORÍAS DINÁMICAS
@@ -708,12 +753,16 @@ function renderGrid(list) {
 
 function getFilteredList() {
   const q = document.getElementById('searchInput').value.toLowerCase().trim();
-  return productos.filter(p => {
+  let lista = productos.filter(p => {
     const catMatch = currentCat === 'todos' ||
       (currentCat === 'ofertas' ? p.oferta : p.cat === currentCat.toLowerCase());
     const searchMatch = !q || p.nombre.toLowerCase().includes(q);
     return catMatch && searchMatch;
   });
+  lista.sort((a, b) => sortAZ
+    ? a.nombre.localeCompare(b.nombre, 'es')
+    : b.nombre.localeCompare(a.nombre, 'es'));
+  return lista;
 }
 
 function filterCat(cat) {
