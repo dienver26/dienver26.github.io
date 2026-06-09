@@ -368,10 +368,13 @@
       <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       <input class="search-input" type="text" placeholder="Buscar producto..." id="searchInput" oninput="filtrar()">
     </div>
-    <div class="seg-control">
-      <button class="seg-btn active" onclick="setDisponibilidad('todos',this)">Todos</button>
-      <button class="seg-btn" onclick="setDisponibilidad('inmediata',this)">Entrega inmediata</button>
-      <button class="seg-btn" onclick="setDisponibilidad('48h',this)">48-72 hs</button>
+    <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">
+      <span style="font-size:10px;font-weight:500;color:var(--gray-400);letter-spacing:0.06em;text-transform:uppercase;">Disponibilidad</span>
+      <div class="seg-control">
+        <button class="seg-btn active" onclick="setDisponibilidad('todos',this)">Todos</button>
+        <button class="seg-btn" onclick="setDisponibilidad('inmediata',this)">En Stock</button>
+        <button class="seg-btn" onclick="setDisponibilidad('48h',this)">48-72 hs</button>
+      </div>
     </div>
     <button class="sort-btn" id="sortBtn" onclick="toggleSort()">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M7 12h10M11 18h2"/></svg>
@@ -528,7 +531,7 @@ function renderGrid(lista) {
     const qty = cantidades[p.id] || 0;
     const precio = p.precio ? '$' + p.precio.toLocaleString('es-AR') : '';
     const dispBadge = p.hayStock
-      ? '<span class="disp-badge disp-inmediata">Inmediata</span>'
+      ? '<span class="disp-badge disp-inmediata">En Stock</span>'
       : '<span class="disp-badge disp-48h">48-72 hs</span>';
 
     const qtyControl = `<div class="qty-control">
