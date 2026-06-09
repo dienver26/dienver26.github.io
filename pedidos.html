@@ -106,21 +106,16 @@
     position: sticky; top: 60px; z-index: 100;
     flex-wrap: wrap;
   }
-  .toggle-wrap { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--gray-600); cursor: pointer; user-select: none; flex-shrink: 0; }
-  .toggle-wrap input { display: none; }
-  .toggle-track {
-    width: 32px; height: 18px; border-radius: 100px;
-    background: var(--gray-200); position: relative;
-    transition: background 0.2s; flex-shrink: 0;
+  /* Segmented control */
+  .seg-control { display: flex; border: 1px solid var(--gray-200); border-radius: 8px; overflow: hidden; flex-shrink: 0; }
+  .seg-btn {
+    padding: 7px 12px; font-size: 12px; font-family: inherit;
+    border: none; border-left: 1px solid var(--gray-200);
+    background: var(--white); color: var(--gray-600);
+    cursor: pointer; white-space: nowrap; transition: all 0.15s;
   }
-  .toggle-track::after {
-    content: ''; position: absolute; top: 2px; left: 2px;
-    width: 14px; height: 14px; border-radius: 50%;
-    background: white; transition: transform 0.2s;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  }
-  .toggle-wrap input:checked + .toggle-track { background: var(--accent); }
-  .toggle-wrap input:checked + .toggle-track::after { transform: translateX(14px); }
+  .seg-btn:first-child { border-left: none; }
+  .seg-btn.active { background: var(--accent-light); color: var(--accent); font-weight: 500; }
   .sort-btn {
     display: flex; align-items: center; gap: 5px;
     padding: 7px 12px; border-radius: 8px;
@@ -181,7 +176,6 @@
     overflow: hidden;
     transition: border-color 0.2s, box-shadow 0.2s;
   }
-  .prod-card.sin-stock { opacity: 0.5; }
   .prod-card.con-cantidad { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(46,107,230,0.12); }
 
   .prod-img { height: 110px; overflow: hidden; background: var(--gray-100); position: relative; }
@@ -199,12 +193,13 @@
   .badge-Utensilios  { background: rgba(124,58,237,0.1); color: #5b21b6; border: 1px solid rgba(124,58,237,0.2); }
   .badge-Papeleria   { background: rgba(236,72,153,0.1); color: #9d174d; border: 1px solid rgba(236,72,153,0.2); }
 
-  .sin-stock-badge {
+  .disp-badge {
     position: absolute; top: 6px; right: 6px;
-    background: rgba(0,0,0,0.6); color: white;
     font-size: 9px; font-weight: 600; padding: 2px 7px;
-    border-radius: 100px;
+    border-radius: 100px; text-transform: uppercase; letter-spacing: 0.05em;
   }
+  .disp-inmediata { background: rgba(22,163,74,0.15); color: #166534; border: 1px solid rgba(22,163,74,0.3); }
+  .disp-48h       { background: rgba(234,139,0,0.15); color: #9a5c00; border: 1px solid rgba(234,139,0,0.3); }
 
   .prod-body { padding: 10px 10px 12px; }
   .prod-name {
@@ -373,11 +368,11 @@
       <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       <input class="search-input" type="text" placeholder="Buscar producto..." id="searchInput" oninput="filtrar()">
     </div>
-    <label class="toggle-wrap">
-      <input type="checkbox" id="toggleStock" onchange="filtrar()">
-      <span class="toggle-track"></span>
-      En stock
-    </label>
+    <div class="seg-control">
+      <button class="seg-btn active" onclick="setDisponibilidad('todos',this)">Todos</button>
+      <button class="seg-btn" onclick="setDisponibilidad('inmediata',this)">Entrega inmediata</button>
+      <button class="seg-btn" onclick="setDisponibilidad('48h',this)">48-72 hs</button>
+    </div>
     <button class="sort-btn" id="sortBtn" onclick="toggleSort()">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M7 12h10M11 18h2"/></svg>
       <span id="sortLabel">A → Z</span>
@@ -440,12 +435,19 @@ let cantidades = {};
 let catActiva  = 'Todos';
 let sucursalSel = '';
 let sortAZ = true;
-let soloStock = false;
+let disponibilidad = 'todos';
 
 function toggleSort() {
   sortAZ = !sortAZ;
   document.getElementById('sortLabel').textContent = sortAZ ? 'A → Z' : 'Z → A';
   document.getElementById('sortBtn').classList.toggle('active', !sortAZ);
+  filtrar();
+}
+
+function setDisponibilidad(val, btn) {
+  disponibilidad = val;
+  document.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
   filtrar();
 }
 
@@ -525,22 +527,23 @@ function renderGrid(lista) {
   grid.innerHTML = lista.map(p => {
     const qty = cantidades[p.id] || 0;
     const precio = p.precio ? '$' + p.precio.toLocaleString('es-AR') : '';
+    const dispBadge = p.hayStock
+      ? '<span class="disp-badge disp-inmediata">Inmediata</span>'
+      : '<span class="disp-badge disp-48h">48-72 hs</span>';
 
-    const qtyControl = p.hayStock
-      ? `<div class="qty-control">
-          <button class="qty-btn" onclick="cambiarQty(${p.id},-1)" ${qty===0?'disabled':''}>−</button>
-          <input class="qty-input" type="number" min="0" value="${qty}" id="qty-${p.id}"
-            onchange="setQty(${p.id},parseInt(this.value)||0)" onfocus="this.select()">
-          <button class="qty-btn" onclick="cambiarQty(${p.id},1)">+</button>
-        </div>`
-      : `<div class="sin-stock-label">Sin stock disponible</div>`;
+    const qtyControl = `<div class="qty-control">
+      <button class="qty-btn" onclick="cambiarQty(${p.id},-1)" ${qty===0?'disabled':''}>−</button>
+      <input class="qty-input" type="number" min="0" value="${qty}" id="qty-${p.id}"
+        onchange="setQty(${p.id},parseInt(this.value)||0)" onfocus="this.select()">
+      <button class="qty-btn" onclick="cambiarQty(${p.id},1)">+</button>
+    </div>`;
 
     return `
-    <div class="prod-card ${!p.hayStock?'sin-stock':''} ${qty>0?'con-cantidad':''}" id="card-${p.id}">
+    <div class="prod-card ${qty>0?'con-cantidad':''}" id="card-${p.id}">
       <div class="prod-img">
         <img src="${p.foto}" alt="${p.nombre}" loading="lazy">
         <span class="prod-badge badge-${p.categoria}">${p.categoria}</span>
-        ${!p.hayStock ? '<span class="sin-stock-badge">Sin stock</span>' : ''}
+        ${dispBadge}
         ${p.oferta ? '<span class="badge-oferta">Oferta</span>' : ''}
       </div>
       <div class="prod-body">
@@ -554,13 +557,13 @@ function renderGrid(lista) {
 
 function filtrar() {
   const q = document.getElementById('searchInput').value.toLowerCase().trim();
-  soloStock = document.getElementById('toggleStock').checked;
   let lista = productos.filter(p => {
     const catOk  = catActiva === 'Todos' ||
       (catActiva === 'Ofertas' ? p.oferta : p.categoria === catActiva);
     const nameOk = !q || p.nombre.toLowerCase().includes(q);
-    const stockOk = !soloStock || p.hayStock;
-    return catOk && nameOk && stockOk;
+    const dispOk = disponibilidad === 'todos' ||
+      (disponibilidad === 'inmediata' ? p.hayStock : !p.hayStock);
+    return catOk && nameOk && dispOk;
   });
   lista.sort((a, b) => sortAZ
     ? a.nombre.localeCompare(b.nombre, 'es')
