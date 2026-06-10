@@ -1,10 +1,27 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="200" height="50" viewBox="0 0 200 50">
-  <defs>
-    <style>@import url('https://fonts.googleapis.com/css2?family=Michroma&amp;display=swap');</style>
-  </defs>
-  <path d="M0,0 L38,0 L38,38 L27,38 L0,38 L0,0 Z" fill="#ffffff"/>
-  <path d="M38,38 L27,38 L38,27 Z" fill="#0D1B3E"/>
-  <path d="M7,7 L26,7 L26,26 L20,26 L7,26 L7,7 Z" fill="#0D1B3E"/>
-  <rect x="20" y="20" width="6" height="6" fill="#ffffff"/>
-  <text x="48" y="28" font-family="'Michroma', sans-serif" font-size="22" fill="#ffffff" letter-spacing="1">Dienver</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 220">
+  <title>Dienver Logo Light</title>
+
+  <!-- IMPORTANTE: cargar fuente Michroma en tu HTML -->
+  <!-- https://fonts.googleapis.com/css2?family=Michroma&display=swap -->
+
+  <!-- Icono -->
+  <g fill="#001a3a">
+    <!-- Forma exterior -->
+    <path d="M40 20 H200 V125 L155 170 H40 Z"/>
+    
+    <!-- Forma interior -->
+    <path d="M85 65 H160 V110 H125 V155 H85 Z" fill="#ffffff"/>
+  </g>
+
+  <!-- Texto -->
+  <text
+    x="260"
+    y="140"
+    font-family="Michroma, sans-serif"
+    font-size="92"
+    letter-spacing="8"
+    fill="#001a3a">
+    DIENVER
+  </text>
+
 </svg>
