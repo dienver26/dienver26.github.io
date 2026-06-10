@@ -1,27 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 220">
-  <title>Dienver Logo Light</title>
-
-  <!-- IMPORTANTE: cargar fuente Michroma en tu HTML -->
-  <!-- https://fonts.googleapis.com/css2?family=Michroma&display=swap -->
-
-  <!-- Icono -->
-  <g fill="#001a3a">
-    <!-- Forma exterior -->
-    <path d="M40 20 H200 V125 L155 170 H40 Z"/>
-    
-    <!-- Forma interior -->
-    <path d="M85 65 H160 V110 H125 V155 H85 Z" fill="#ffffff"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="40" viewBox="0 0 160 40">
+  <g transform="translate(0, 0)">
+    <path d="M0,0 L34,0 L34,34 L24,34 L0,34 L0,0 Z" fill="#ffffff"/>
+    <path d="M34,34 L24,34 L34,24 Z" fill="#0D1B3E"/>
+    <path d="M8,8 L26,8 L26,26 L18,26 L8,26 L8,8 Z" fill="#0D1B3E"/>
+    <path d="M26,26 L18,26 L26,18 Z" fill="#ffffff"/>
   </g>
-
-  <!-- Texto -->
-  <text
-    x="260"
-    y="140"
-    font-family="Michroma, sans-serif"
-    font-size="92"
-    letter-spacing="8"
-    fill="#001a3a">
-    DIENVER
-  </text>
-
+  <text x="44" y="25" font-family="system-ui,-apple-system,sans-serif" font-size="22" font-weight="600" fill="#ffffff" letter-spacing="-0.3">Dienver</text>
 </svg>
