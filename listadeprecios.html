@@ -167,6 +167,7 @@
   .prod-card-body { padding: 10px 12px 12px; }
   .prod-card-name { font-size: 12px; font-weight: 500; color: var(--navy); margin-bottom: 4px; line-height: 1.35; }
   .prod-card-price { font-size: 14px; font-weight: 700; color: var(--accent); }
+  .iva-note { font-size: 10px; font-weight: 500; color: var(--gray-400); }
 
   /* MOBILE FILTERS */
   .mobile-filters {
@@ -479,7 +480,7 @@ function renderGrid(lista) {
   grid.innerHTML = lista.map(p => {
     const color    = CAT_PALETA[hashCat(p.cat)];
     const label    = p.catLabel;
-    const precioStr = p.precio ? '$' + p.precio.toLocaleString('es-AR') : 'Consultar';
+    const precioStr = p.precio ? '$' + p.precio.toLocaleString('es-AR') + ' <span class="iva-note">+ IVA</span>' : 'Consultar';
     return `
     <div class="prod-card">
       <div class="prod-card-img">
