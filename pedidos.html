@@ -223,9 +223,11 @@
     max-height: 80vh; display: flex; flex-direction: column;
   }
   .modal-box h3 { font-family: 'DM Serif Display', serif; font-size: 19px; color: var(--navy); margin-bottom: 10px; flex-shrink: 0; }
-  .modal-box p {
-    font-size: 13.5px; color: var(--gray-600); line-height: 1.6; margin-bottom: 20px;
-    overflow-y: auto; max-height: 280px;
+  .modal-box p { font-size: 13.5px; color: var(--gray-600); line-height: 1.6; margin-bottom: 14px; flex-shrink: 0; }
+  .modal-list-scroll {
+    font-size: 13px; color: var(--gray-600); line-height: 1.7;
+    overflow-y: auto; max-height: 220px;
+    margin-bottom: 20px; padding-right: 4px;
   }
   .modal-actions { display: flex; gap: 10px; flex-shrink: 0; }
   .modal-btn-secondary, .modal-btn-primary {
@@ -495,7 +497,8 @@
 <div class="modal-overlay" id="modalSinStock">
   <div class="modal-box">
     <h3>Entrega en 48-72 hs</h3>
-    <p id="modalSinStockMsg"></p>
+    <p id="modalSinStockIntro"></p>
+    <div class="modal-list-scroll" id="modalSinStockList"></div>
     <div class="modal-actions">
       <button class="modal-btn-secondary" id="modalSinStockCancel">Quitar</button>
       <button class="modal-btn-primary" id="modalSinStockAccept">Aceptar</button>
@@ -519,9 +522,10 @@ function mostrarToast(mensaje) {
   toastTimer = setTimeout(() => el.classList.remove('visible'), 4500);
 }
 
-function mostrarModalSinStock(mensajeHtml, onAccept, onCancel, labelAccept, labelCancel) {
+function mostrarModalSinStock(introHtml, listaHtml, onAccept, onCancel, labelAccept, labelCancel) {
   const overlay = document.getElementById('modalSinStock');
-  document.getElementById('modalSinStockMsg').innerHTML = mensajeHtml;
+  document.getElementById('modalSinStockIntro').innerHTML = introHtml;
+  document.getElementById('modalSinStockList').innerHTML = listaHtml;
   const btnAccept = document.getElementById('modalSinStockAccept');
   const btnCancel = document.getElementById('modalSinStockCancel');
   btnAccept.textContent = labelAccept || 'Aceptar';
@@ -749,7 +753,8 @@ function irAConfirmar() {
     }).join('<br>');
 
     mostrarModalSinStock(
-      `Los siguientes productos no están disponibles para entrega inmediata. Coordinaremos tu pedido para ser entregado en las próximas 48-72 hs.:<br><br>${detalle}`,
+      `Los siguientes productos no están disponibles para entrega inmediata. Coordinaremos tu pedido para ser entregado en las próximas 48-72 hs.:`,
+      detalle,
       () => renderConfirmScreen(),
       () => {
         sinStockIds.forEach(id => delete cantidades[id]);
