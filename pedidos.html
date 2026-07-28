@@ -424,7 +424,7 @@
       <div class="seg-control">
         <button class="seg-btn active" onclick="setDisponibilidad('todos',this)">Todos</button>
         <button class="seg-btn" onclick="setDisponibilidad('inmediata',this)">En Stock</button>
-        <button class="seg-btn" onclick="setDisponibilidad('48h',this)">48-72 hs</button>
+        <button class="seg-btn" onclick="setDisponibilidad('48h',this)">24-48 hs</button>
       </div>
     </div>
     <button class="sort-btn" id="sortBtn" onclick="toggleSort()">
@@ -496,7 +496,7 @@
 <!-- MODAL SIN STOCK -->
 <div class="modal-overlay" id="modalSinStock">
   <div class="modal-box">
-    <h3>Entrega en 48-72 hs</h3>
+    <h3>Entrega en 24-48 hs</h3>
     <p id="modalSinStockIntro"></p>
     <div class="modal-list-scroll" id="modalSinStockList"></div>
     <div class="modal-actions">
@@ -632,7 +632,7 @@ function renderGrid(lista) {
     const precio = p.precio ? '$' + p.precio.toLocaleString('es-AR') + ' <span class="iva-note">+ IVA</span>' : '';
     const dispBadge = p.hayStock
       ? '<span class="disp-badge disp-inmediata">En Stock</span>'
-      : '<span class="disp-badge disp-48h">48-72 hs</span>';
+      : '<span class="disp-badge disp-48h">24-48 hs</span>';
 
     const qtyControl = `<div class="qty-control">
       <button class="qty-btn" onclick="cambiarQty(${p.id},-1)" ${qty===0?'disabled':''}>−</button>
@@ -689,12 +689,12 @@ function setQty(id, valor, maxStock) {
 
   // Caso 1: producto sin stock — aviso informativo, cada vez que se agrega
   if (!p.hayStock && actual === 0 && valor > 0) {
-    mostrarToast('Estás pidiendo un producto sin stock disponible para entrega inmediata. Tu pedido se coordinará para ser entregado en las próximas 48-72 hs.');
+    mostrarToast('Estás pidiendo un producto sin stock disponible para entrega inmediata. Tu pedido se coordinará para ser entregado en las próximas 24-48 hs.');
   }
 
   // Caso 2: se pide más cantidad de la disponible en stock — aviso informativo, cada vez que ocurre
   if (p.hayStock && valor > p.stock && valor !== actual) {
-    mostrarToast(`Estás pidiendo más unidades de "${p.nombre}" que las disponibles en stock. Coordinaremos tu pedido para ser entregado en las próximas 48-72 hs.`);
+    mostrarToast(`Estás pidiendo más unidades de "${p.nombre}" que las disponibles en stock. Coordinaremos tu pedido para ser entregado en las próximas 24-48 hs.`);
   }
 
   aplicarQty(id, valor, maxStock);
@@ -753,7 +753,7 @@ function irAConfirmar() {
     }).join('<br>');
 
     mostrarModalSinStock(
-      `Los siguientes productos no están disponibles para entrega inmediata. Coordinaremos tu pedido para ser entregado en las próximas 48-72 hs.:`,
+      `Los siguientes productos no están disponibles para entrega inmediata. Coordinaremos tu pedido para ser entregado en las próximas 24-48 hs.:`,
       detalle,
       () => renderConfirmScreen(),
       () => {
