@@ -490,7 +490,7 @@
 <!-- MODAL SIN STOCK -->
 <div class="modal-overlay" id="modalSinStock">
   <div class="modal-box">
-    <h3>Sin stock disponible</h3>
+    <h3>Entrega en 48-72 hs</h3>
     <p id="modalSinStockMsg"></p>
     <div class="modal-actions">
       <button class="modal-btn-secondary" id="modalSinStockCancel">Quitar</button>
@@ -505,8 +505,6 @@ const BACKEND = 'https://script.google.com/macros/s/AKfycbyzojK0Pex-_ZkeODAJVohj
 let cliente    = null;
 let productos  = [];
 let cantidades = {};
-let avisoSinStockMostrado  = false;
-let avisoExcedenteMostrado = false;
 let toastTimer = null;
 
 function mostrarToast(mensaje) {
@@ -681,15 +679,13 @@ function setQty(id, valor, maxStock) {
   if (!p) { aplicarQty(id, valor, maxStock); return; }
   const actual = cantidades[id] || 0;
 
-  // Caso 1: producto sin stock — aviso informativo, una sola vez por sesión
-  if (!p.hayStock && actual === 0 && valor > 0 && !avisoSinStockMostrado) {
-    avisoSinStockMostrado = true;
+  // Caso 1: producto sin stock — aviso informativo, cada vez que se agrega
+  if (!p.hayStock && actual === 0 && valor > 0) {
     mostrarToast('Estás pidiendo un producto sin stock disponible para entrega inmediata. Tu pedido se coordinará para ser entregado en las próximas 48-72 hs.');
   }
 
-  // Caso 2: se pide más cantidad de la disponible en stock — aviso informativo, una sola vez por sesión
-  if (p.hayStock && valor > p.stock && !avisoExcedenteMostrado) {
-    avisoExcedenteMostrado = true;
+  // Caso 2: se pide más cantidad de la disponible en stock — aviso informativo, cada vez que ocurre
+  if (p.hayStock && valor > p.stock && valor !== actual) {
     mostrarToast(`Estás pidiendo más unidades de "${p.nombre}" que las disponibles en stock. Coordinaremos tu pedido para ser entregado en las próximas 48-72 hs.`);
   }
 
