@@ -473,6 +473,30 @@
     .page-hero { padding: 20px 16px 24px; }
     .page-hero h1 { font-size: 20px; }
   }
+/* DESCRIPCIÓN — modal al tocar la foto */
+.desc-overlay {
+  display: none; position: fixed; inset: 0; z-index: 700;
+  background: rgba(13,27,62,0.75);
+  align-items: center; justify-content: center; padding: 20px;
+}
+.desc-overlay.visible { display: flex; }
+.desc-box {
+  background: #ffffff; border-radius: 16px; overflow: hidden;
+  max-width: 420px; width: 100%; max-height: 85vh;
+  display: flex; flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+  position: relative;
+}
+.desc-close {
+  position: absolute; top: 10px; right: 10px; z-index: 2;
+  width: 32px; height: 32px; border-radius: 50%; border: none;
+  background: rgba(13,27,62,0.7); color: #fff; font-size: 15px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.desc-box img { width: 100%; max-height: 280px; object-fit: contain; background: #f0efed; display: block; }
+.desc-content { padding: 18px 20px; overflow-y: auto; }
+.desc-nombre { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--navy); margin-bottom: 8px; }
+.desc-texto { font-size: 13.5px; color: var(--gray-600); line-height: 1.6; white-space: pre-line; }
 </style>
 </head>
 <body>
@@ -595,7 +619,7 @@ async function cargarCatalogo() {
         id:     p.id,
         nombre: p.nombre,
         cat:    p.categoria.toLowerCase(),
-        desc:   '',
+        desc:   p.descripcion || '',
         img:    p.foto,
         precio: p.precio,
         hayStock: p.hayStock,
@@ -736,7 +760,7 @@ function renderGrid(list) {
     const btnText = inCart ? 'Quitar del pedido' : 'Agregar a la cotización';
     return `
     <div class="prod-card ${inCart ? 'in-cart' : ''}" id="card-${p.id}">
-      <div class="prod-card-img">
+      <div class="prod-card-img" onclick="mostrarDescripcion(${p.id})" style="cursor:pointer">
         <img src="${p.img}" alt="${p.nombre}" loading="lazy">
         <span class="prod-cat-badge" style="${bStyle}">${label}</span>
         <span class="in-cart-badge">✓</span>
@@ -744,11 +768,23 @@ function renderGrid(list) {
       </div>
       <div class="prod-card-body">
         <div class="prod-card-name">${p.nombre}</div>
-        <div class="prod-card-desc">${p.desc}</div>
         <button class="prod-add-btn" onclick="toggleCart(${p.id})">${btnText}</button>
       </div>
     </div>`;
   }).join('');
+}
+
+function mostrarDescripcion(id) {
+  const p = productos.find(x => x.id === parseInt(id));
+  if (!p) return;
+  document.getElementById('descImg').src = p.img || '';
+  document.getElementById('descImg').alt = p.nombre;
+  document.getElementById('descNombre').textContent = p.nombre;
+  document.getElementById('descTexto').textContent = (p.desc || '').trim() || 'Sin descripción disponible.';
+  document.getElementById('descOverlay').classList.add('visible');
+}
+function cerrarDescripcion() {
+  document.getElementById('descOverlay').classList.remove('visible');
 }
 
 function getFilteredList() {
@@ -1013,5 +1049,17 @@ function closeCart() {
 // ============================================================
 cargarCatalogo();
 </script>
+<!-- MODAL DESCRIPCIÓN -->
+<div class="desc-overlay" id="descOverlay" onclick="if(event.target===this) cerrarDescripcion()">
+  <div class="desc-box">
+    <button class="desc-close" onclick="cerrarDescripcion()">✕</button>
+    <img id="descImg" src="" alt="">
+    <div class="desc-content">
+      <div class="desc-nombre" id="descNombre"></div>
+      <div class="desc-texto" id="descTexto"></div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

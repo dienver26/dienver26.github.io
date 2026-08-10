@@ -167,6 +167,32 @@
   .prod-card-body { padding: 10px 12px 12px; }
   .prod-card-name { font-size: 12px; font-weight: 500; color: var(--navy); margin-bottom: 4px; line-height: 1.35; }
   .prod-card-price { font-size: 14px; font-weight: 700; color: var(--accent); }
+  .iva-note { font-size: 10px; font-weight: 500; color: var(--gray-400); }
+
+  /* DESCRIPCIÓN — modal al tocar la foto */
+  .desc-overlay {
+    display: none; position: fixed; inset: 0; z-index: 700;
+    background: rgba(13,27,62,0.75);
+    align-items: center; justify-content: center; padding: 20px;
+  }
+  .desc-overlay.visible { display: flex; }
+  .desc-box {
+    background: #ffffff; border-radius: 16px; overflow: hidden;
+    max-width: 420px; width: 100%; max-height: 85vh;
+    display: flex; flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    position: relative;
+  }
+  .desc-close {
+    position: absolute; top: 10px; right: 10px; z-index: 2;
+    width: 32px; height: 32px; border-radius: 50%; border: none;
+    background: rgba(13,27,62,0.7); color: #fff; font-size: 15px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+  .desc-box img { width: 100%; max-height: 280px; object-fit: contain; background: #f0efed; display: block; }
+  .desc-content { padding: 18px 20px; overflow-y: auto; }
+  .desc-nombre { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--navy); margin-bottom: 8px; }
+  .desc-texto { font-size: 13.5px; color: var(--gray-600); line-height: 1.6; white-space: pre-line; }
 
   /* MOBILE FILTERS */
   .mobile-filters {
@@ -408,6 +434,7 @@ async function cargarCatalogo() {
         catLabel: p.categoria,
         precio:   p.precio,
         img:      p.foto,
+        desc:     p.descripcion || '',
         oferta:   p.oferta,
       }));
       construirFiltros();
@@ -466,6 +493,19 @@ function getFiltered() {
   return lista;
 }
 
+function mostrarDescripcion(id) {
+  const p = productos.find(x => x.id === parseInt(id));
+  if (!p) return;
+  document.getElementById('descImg').src = p.img || '';
+  document.getElementById('descImg').alt = p.nombre;
+  document.getElementById('descNombre').textContent = p.nombre;
+  document.getElementById('descTexto').textContent = (p.desc || '').trim() || 'Sin descripción disponible.';
+  document.getElementById('descOverlay').classList.add('visible');
+}
+function cerrarDescripcion() {
+  document.getElementById('descOverlay').classList.remove('visible');
+}
+
 function renderGrid(lista) {
   const grid  = document.getElementById('prodGrid');
   const noRes = document.getElementById('noResults');
@@ -479,10 +519,10 @@ function renderGrid(lista) {
   grid.innerHTML = lista.map(p => {
     const color    = CAT_PALETA[hashCat(p.cat)];
     const label    = p.catLabel;
-    const precioStr = p.precio ? '$' + p.precio.toLocaleString('es-AR') : 'Consultar';
+    const precioStr = p.precio ? '$' + p.precio.toLocaleString('es-AR') + ' <span class="iva-note">+ IVA</span>' : 'Consultar';
     return `
     <div class="prod-card">
-      <div class="prod-card-img">
+      <div class="prod-card-img" onclick="mostrarDescripcion(${p.id})" style="cursor:pointer">
         <img src="${p.img}" alt="${p.nombre}" loading="lazy">
         <span class="prod-cat-badge" style="background:${color}">${label}</span>
       </div>
@@ -578,5 +618,17 @@ async function enviarRegistro() {
 
 cargarCatalogo();
 </script>
+<!-- MODAL DESCRIPCIÓN -->
+<div class="desc-overlay" id="descOverlay" onclick="if(event.target===this) cerrarDescripcion()">
+  <div class="desc-box">
+    <button class="desc-close" onclick="cerrarDescripcion()">✕</button>
+    <img id="descImg" src="" alt="">
+    <div class="desc-content">
+      <div class="desc-nombre" id="descNombre"></div>
+      <div class="desc-texto" id="descTexto"></div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
